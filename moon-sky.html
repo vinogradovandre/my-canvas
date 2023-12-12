@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000033;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+    <title>Night Sky Animation</title>
+</head>
+<body>
+    <canvas id="nightCanvas"></canvas>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const canvas = document.getElementById('nightCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // Set canvas size after the document is fully loaded
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            // Night sky properties
+            const stars = [];
+            const numStars = 200;
+
+            // Moon properties
+            const moon = {
+                x: 100,
+                y: 100,
+                radius: 40,
+                color: '#FFFF66',
+                shadowColor: '#666666',
+                phase: 0,
+                illuminated: 0.8 // Измените освещенность от 0 до 1
+            };
+
+            // Function to generate random stars
+            function generateStars() {
+                for (let i = 0; i < numStars; i++) {
+                    const x = Math.random() * canvas.width;
+                    const y = Math.random() * canvas.height;
+                    const radius = Math.random() * 2;
+                    stars.push({ x, y, radius });
+                }
+            }
+
+            // Function to draw stars
+            function drawStars() {
+                for (const star of stars) {
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = '#FFFF66';
+                    ctx.fill();
+                }
+            }
+
+            // Function to draw moon
+            function drawMoon() {
+                ctx.beginPath();
+                ctx.arc(moon.x, moon.y, moon.radius, 0, Math.PI * 2);
+
+                // Добавим градиент для освещения луны
+                const gradient = ctx.createRadialGradient(
+                    moon.x, moon.y, 0,
+                    moon.x, moon.y, moon.radius
+                );
+                gradient.addColorStop(0, moon.color);
+                gradient.addColorStop(moon.illuminated, moon.color);
+                gradient.addColorStop(moon.illuminated, moon.shadowColor);
+
+                ctx.fillStyle = gradient;
+                ctx.fill();
+            }
+
+            // Animation loop
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Draw night sky
+                drawStars();
+
+                // Draw moon
+                drawMoon();
+
+                // Move the moon
+                moon.x += 1;
+                moon.y = canvas.height / 2 + Math.sin(moon.x / 100) * 100;
+
+                // Reset moon position
+                if (moon.x - moon.radius > canvas.width) {
+                    moon.x = -moon.radius;
+                    moon.illuminated = Math.random(); // Обновим освещенность луны
+                }
+
+                requestAnimationFrame(animate);
+            }
+
+            // Initialize animation
+            generateStars();
+            animate();
+        });
+    </script>
+</body>
+</html>
